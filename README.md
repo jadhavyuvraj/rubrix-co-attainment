@@ -4,6 +4,8 @@ A small faculty workspace for defining course outcomes, entering student scores,
 
 **Assignment reference: `RX-XXXX` — replace this placeholder with the exact code from your email before submitting.**
 
+![Rubrix OBE dashboard](docs/dashboard.png)
+
 ## Run locally
 
 Requires Python 3.10+ and Node.js 22 LTS. Run the commands from the repository root. No database server or environment file is required.
@@ -150,7 +152,14 @@ Python versions are captured in `requirements.lock.txt`; `requirements.txt` reco
 
 ## Scope and next steps
 
-The core assignment is complete locally. **GitHub publication still requires a destination repository and authenticated access.** The RX reference remains a visible placeholder. Source code contains no comments, as requested.
+The core assignment is complete locally. **GitHub publication is pending: the available browser requires sign-in and no destination repository was supplied.** The RX reference remains a visible placeholder. Source code contains no comments, as requested. The app ran successfully in local development servers; this environment blocked the VS Code renderer from launching, so the included VS Code task configuration could not be exercised inside the editor.
+
+After creating an empty GitHub repository, publish the local commit history from the repository root:
+
+```bash
+git remote add origin YOUR_GITHUB_REPOSITORY_URL
+git push -u origin main
+```
 
 Intentionally deferred: authentication/JWT and faculty ownership, Docker Compose, schema migrations, pagination, CSV import, audit history, concurrent-edit detection, and institution-wide student records. This is a local assignment app with no authentication; it is not configured for a public multi-user deployment. With more time I would add faculty ownership enforced server-side, Alembic migrations, then optimistic concurrency and broader accessibility testing.
 

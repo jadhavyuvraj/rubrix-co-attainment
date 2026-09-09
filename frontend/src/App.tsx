@@ -354,8 +354,8 @@ export default function App() {
               key={`${detail.id}:${draftVersion}`}
               course={detail}
               threshold={threshold}
-                onDirty={setDirty}
-                onBusy={setSavingScores}
+              onDirty={setDirty}
+              onBusy={setSavingScores}
               onSaved={refresh}
               notify={setNotice}
               onAddStudent={() => openEditor({ kind: 'student' })}
