@@ -48,4 +48,3 @@ export interface Attainment {
 export type Page = 'dashboard' | 'courses' | 'students' | 'results'
 export type Tab = 'overview' | 'scores' | 'outcomes'
 export type Notice = { type: 'success' | 'error'; message: string }
-

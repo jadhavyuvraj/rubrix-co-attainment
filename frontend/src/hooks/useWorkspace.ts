@@ -15,14 +15,21 @@ export function useWorkspace() {
 
   const refreshCourses = useCallback(async (preferredId?: number) => {
     const data = await api.courses()
+    setError('')
     setCourses(data)
-    setSelectedId(current => data.some(course => course.id === (preferredId ?? current))
-      ? (preferredId ?? current) : (data[0]?.id ?? null))
-    setRevision(value => value + 1)
+    setSelectedId((current) =>
+      data.some((course) => course.id === (preferredId ?? current))
+        ? (preferredId ?? current)
+        : (data[0]?.id ?? null),
+    )
+    setRevision((value) => value + 1)
   }, [])
 
   useEffect(() => {
-    refreshCourses().catch(err => { setError(err.message); setLoading(false) })
+    refreshCourses().catch((err) => {
+      setError(err.message)
+      setLoading(false)
+    })
   }, [refreshCourses])
 
   useEffect(() => {
@@ -41,12 +48,27 @@ export function useWorkspace() {
         setDetail(course)
         setResults(values)
       })
-      .catch(err => { if (current === sequence.current) setError(err.message) })
-      .finally(() => { if (current === sequence.current) setLoading(false) })
-    return () => { sequence.current += 1 }
+      .catch((err) => {
+        if (current === sequence.current) setError(err.message)
+      })
+      .finally(() => {
+        if (current === sequence.current) setLoading(false)
+      })
+    return () => {
+      sequence.current += 1
+    }
   }, [selectedId, threshold, revision])
 
-  return { courses, selectedId, setSelectedId, detail, results, threshold, setThreshold,
-    loading, error, refreshCourses }
+  return {
+    courses,
+    selectedId,
+    setSelectedId,
+    detail,
+    results,
+    threshold,
+    setThreshold,
+    loading,
+    error,
+    refreshCourses,
+  }
 }
-

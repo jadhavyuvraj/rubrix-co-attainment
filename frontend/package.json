@@ -21,6 +21,7 @@
     "@types/react-dom": "^19.1.0",
     "@vitejs/plugin-react": "^4.7.0",
     "esbuild": "npm:esbuild-wasm@^0.25.12",
+    "prettier": "^3.9.6",
     "tailwindcss": "^4.1.0",
     "typescript": "~5.9.2",
     "vite": "^6.4.0"
