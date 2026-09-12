@@ -1,16 +1,18 @@
-# Rubrix OBE
+# Rubrix OBE · CO Attainment Calculator
 
-A small faculty workspace for defining course outcomes, entering student scores, and calculating attainment. Built for the Rubrix.ai technical assignment with FastAPI, SQLAlchemy, SQLite, Pydantic, pytest, React, TypeScript, Vite, and Tailwind CSS.
+**Rubrix.ai Software Engineering Intern assessment — reference `RX-AF6E46`**
 
-**Assignment reference: `RX-XXXX` — replace this placeholder with the exact code from your email before submitting.**
+**GitHub username:** `jadhavyuvraj`
+
+A complete local faculty workspace built with **Python, FastAPI, SQLAlchemy, SQLite, Pydantic, React, TypeScript, Vite, and Tailwind CSS**. Define outcomes, record student scores, and calculate attainment with an inclusive threshold.
 
 ![Rubrix OBE dashboard](docs/dashboard.png)
 
 ## Run locally
 
-Requires Python 3.10+ and Node.js 22 LTS. Run the commands from the repository root. No database server or environment file is required.
+Requires Python **3.10+** and Node.js **22 LTS**. Run these commands from the repository root. No database server or `.env` file is required.
 
-Windows PowerShell, terminal 1:
+**Windows PowerShell — terminal 1:**
 
 ```powershell
 python -m venv .venv
@@ -19,7 +21,7 @@ cd backend
 ..\.venv\Scripts\python.exe -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
-Windows PowerShell, terminal 2:
+**Terminal 2:**
 
 ```powershell
 cd frontend
@@ -27,7 +29,7 @@ npm ci
 npm run dev
 ```
 
-macOS/Linux, terminal 1:
+**macOS/Linux — terminal 1:**
 
 ```bash
 python3 -m venv .venv
@@ -36,131 +38,86 @@ cd backend
 ../.venv/bin/python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
-Start the frontend using the same `cd frontend`, `npm ci`, and `npm run dev` commands in a second terminal.
+Start the frontend with the same three terminal-2 commands above.
 
-- Application: http://127.0.0.1:5173
-- Interactive API documentation: http://127.0.0.1:8000/docs
-- OpenAPI schema: http://127.0.0.1:8000/openapi.json
+- **App:** [http://127.0.0.1:5173](http://127.0.0.1:5173)
+- **Swagger API docs:** [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+- **OpenAPI schema:** [http://127.0.0.1:8000/openapi.json](http://127.0.0.1:8000/openapi.json)
 
-Stop each server with `Ctrl+C`. `npm run build` creates the production frontend in `frontend/dist`; serving that build also requires forwarding `/api` to FastAPI or setting `VITE_API_URL` before building.
+Stop servers with `Ctrl+C`. VS Code tasks and launch configurations are included: open the repository, install dependencies, then choose **Terminal → Run Task → Start Rubrix**. On macOS/Linux, select `.venv/bin/python` as the interpreter. Do not start a second server on an occupied port.
 
-### VS Code
+### Docker Compose
 
-Open this repository with `code .`. After installing dependencies, select **Run and Debug → Rubrix OBE: start app and browser** and press **F5**, or use **Terminal → Run Task → Start Rubrix**. The two servers run in separate VS Code terminals. Stop existing servers on ports 8000 and 5173 before starting another copy. A separate **Debug FastAPI** configuration is included. On macOS/Linux, select `.venv/bin/python` as the Python interpreter.
+With Docker installed, run from the repository root:
 
-## What works
+```bash
+docker compose up --build
+```
 
-- Course, outcome, student, and score create/read/update/delete APIs with typed request and response models.
-- Dashboard, course management, student search and sorting, and an editable score register.
-- Batch score saves, inline validation, unsaved-edit protection, modal confirmations, and success/error notifications.
-- Configurable score threshold, individual and course-wide attainment results, a chart, progress bars, and client-side CSV export.
-- Responsive navigation and horizontally scrollable score tables, keyboard focus states, and native modal focus handling.
-- Three seeded courses, four outcomes per course, and eight student enrollments per course. The same eight demo names appear in each course: the dashboard correctly labels the total as **24 enrollments**, not 24 unique people.
+Open [http://127.0.0.1:8080](http://127.0.0.1:8080); API docs are at `/docs` on the same address. A multi-stage image builds React and serves its production assets through FastAPI. SQLite persists in the `rubrix-data` volume. `docker compose down` stops the app without deleting that data.
 
-## Calculation and assumptions
+The container runs as a non-root user and binds only to localhost. Docker is not installed in the development environment, so the container build itself has not been run here. The equivalent production frontend and API serving path is covered by a test.
+
+## Features
+
+- Course, CO, Student, and Score CRUD with typed API contracts and database constraints.
+- Three seeded courses, four COs per course, and eight students enrolled in each course.
+- Course dashboard, editable score register, outcome/student management, search and sorting.
+- Atomic score saves, 0–100 validation, explicit missing scores, unsaved-edit protection, last-saved indicator, and deletion confirmations.
+- Adjustable threshold, results for each CO, attainment charts, teaching insights, and CSV export.
+- Responsive navigation and tables, keyboard focus states, loading/empty/error states, and notification feedback.
+
+## The calculation
 
 ```text
 attainment (%) = count(recorded scores >= threshold) / count(recorded scores) × 100
 ```
 
-`backend/app/services/attainment.py` contains the pure calculation function. Routes retrieve the scores and call it; the function has no HTTP or database dependencies.
+The pure function lives in [`backend/app/services/attainment.py`](backend/app/services/attainment.py), independently of routes and database code. **A score equal to the threshold counts using `>=`.** For `[49.99, 50, 100]` at `50`, the result is **66.67%**.
 
-- Scores and thresholds are percentages between 0 and 100, inclusive. Scores exactly equal to the threshold count using `>=`.
-- For `[49.99, 50, 100]` at threshold `50`, two of three students attain: **66.67%**.
-- Missing scores are excluded from the denominator. A recorded zero is included. Clearing a score cell deletes that score; it does not save zero.
-- Empty data returns zero evaluated, zero attained, and 0% without division by zero. The UI displays **No scores / —** to distinguish this from an evaluated 0%.
-- Results are rounded to two decimal places. The dashboard average is an unweighted mean of evaluated outcome percentages for the selected course.
-- Status bands are Excellent ≥80%, Good ≥60% and <80%, and Needs attention <60%. Insights compare cohort attainment against a fixed 75% teaching benchmark. This is distinct from the adjustable score threshold used to evaluate individual students.
-- A Student is a course enrollment. Its roll number is unique within that course. This deliberately small model avoids a separate institution-wide student registry.
+Missing scores are excluded; a recorded zero is included. Clearing a cell removes the score. No scores returns 0 evaluated and 0% from the API; the UI displays “No scores” to distinguish it from measured failure. Results are rounded to two decimal places. Average attainment is the unweighted mean of evaluated CO results.
 
-## Architecture
+Status bands: Excellent ≥80%, Good ≥60% and <80%, Needs attention <60%. The insights panel's fixed 75% cohort target is separate from the configurable student score threshold.
+
+## Model and architecture
 
 ```text
-React views → typed fetch client → FastAPI routers → SQLAlchemy → SQLite
+React components → fetch client → FastAPI routers → SQLAlchemy → SQLite
                                       ↓
-                              attainment service
+                               attainment service
 ```
 
-| Location | Responsibility |
-| --- | --- |
-| `backend/app/models.py` | Four relational entities, uniqueness constraints, score range check, cascading foreign keys |
-| `backend/app/schemas.py` | Pydantic validation and response contracts |
-| `backend/app/database.py` | Engine setup, SQLite foreign keys, request-scoped sessions |
-| `backend/app/routers/` | Nested CRUD APIs, relationship validation, transaction boundaries |
-| `backend/app/services/attainment.py` | Inclusive-threshold calculation |
-| `backend/app/seed.py` | Deterministic, idempotent demo seed |
-| `frontend/src/components/` | Reusable navigation, forms, chart, score table, dialog and feedback UI |
-| `frontend/src/pages/` | Course, student and results views |
-| `frontend/src/hooks/useWorkspace.ts` | Course selection, data loading, stale-response protection |
-| `frontend/src/services/api.ts` | Configurable fetch client and API error handling |
+A Course has many COs and Students. A Score belongs to one Student and one CO, with a unique student/CO pair. Writes reject records from different courses. SQLite foreign keys and cascades are enabled. A Student represents a course enrollment, so eight demo people across three courses appear as **24 enrollments**, not 24 unique people.
 
-A Course has many CourseOutcomes and Students. Each Score references one Student and one CourseOutcome, with a unique `(student_id, co_id)` pair. API writes reject cross-course relationships. SQLite foreign keys are enabled explicitly; deleting a course, outcome, or student removes its dependent scores. A batch score save validates every relationship first and commits all edits in one transaction.
-
-The API uses 201 for creation, 204 for deletion, 404 for missing or out-of-course records, 409 for uniqueness conflicts, and 422 for invalid input. Updates use `PUT` with complete entity input. The score update body only needs `value`.
-
-## Key endpoints
-
-| Method | Path | Purpose |
-| --- | --- | --- |
-| GET / POST | `/api/courses` | List or create courses; optional `search` on GET |
-| GET / PUT / DELETE | `/api/courses/{id}` | Course detail, edit or delete |
-| GET / POST | `/api/courses/{id}/cos` | Outcomes |
-| GET / PUT / DELETE | `/api/courses/{id}/cos/{co_id}` | One outcome |
-| GET / POST | `/api/courses/{id}/students` | Enrollments; optional `search` on GET |
-| GET / PUT / DELETE | `/api/courses/{id}/students/{student_id}` | One student |
-| GET / POST / PUT | `/api/courses/{id}/scores` | Read, create or batch upsert scores |
-| GET / PUT / DELETE | `/api/courses/{id}/scores/{score_id}` | One score |
-| GET | `/api/courses/{id}/cos/{co_id}/attainment?threshold=50` | One CO calculation |
-| GET | `/api/courses/{id}/attainment?threshold=50` | All CO calculations |
-
-Batch `PUT` accepts `{"scores":[{"student_id":1,"co_id":1,"value":50}]}`. A `null` value clears a cell. Duplicate pairs within a request are rejected.
+Routes use request-scoped database sessions, 201 on creation, 204 on deletion, 404 for missing records, 409 for duplicates, and 422 for invalid input. [Architecture and endpoint reference](docs/architecture.md) explains the module boundaries and API in more detail.
 
 ## Seed and configuration
 
-The first backend startup creates `backend/data/rubrix.db` and seeds the three demo courses. Later restarts preserve edits and deletions, including an intentionally empty workspace. The seed runs automatically only when the course table is first created.
+First startup creates `backend/data/rubrix.db` and seeds the demo. Later startups preserve edits and deletions. From `backend/`, `python -m app.seed` using the virtual environment seeds an empty database and leaves existing courses unchanged.
 
-To explicitly seed an empty database from `backend/`:
-
-```powershell
-..\.venv\Scripts\python.exe -m app.seed
-```
-
-The command leaves a nonempty course database unchanged. Use `../.venv/bin/python` on macOS/Linux. To start without demos, copy `backend/.env.example` to `backend/.env` and set `AUTO_SEED=false` before first startup. An optional `DATABASE_URL` overrides the default SQLite location; create its parent folder first. The default database path is independent of the terminal working directory.
-
-Frontend settings in `frontend/.env.example` document `VITE_API_URL` and `API_PROXY_TARGET`. The default Vite proxy connects `/api` to `http://127.0.0.1:8000`. Backend `CORS_ORIGINS` is a JSON array of allowed browser origins. No credentials are required or included.
+The two `.env.example` files document optional configuration. Backend: `DATABASE_URL`, `AUTO_SEED`, `CORS_ORIGINS`. Frontend: `VITE_API_URL`, `API_PROXY_TARGET`. Defaults connect the Vite frontend to the local backend. Set `AUTO_SEED=false` before first startup for an empty workspace.
 
 ## Verification
 
-From `backend/`:
+From `backend/` with the virtual environment:
 
 ```powershell
 ..\.venv\Scripts\python.exe -m pytest -q
 ```
 
-From `frontend/`, with both servers running:
+From `frontend/`:
 
 ```powershell
 npm run build
 npm run test:e2e
 ```
 
-The browser tests use installed Google Chrome. If Chrome is unavailable, run `npx playwright install chromium` and remove `channel: 'chrome'` from `playwright.config.ts`. They create and clean up a temporary course; they do not modify the seeded courses.
+Use `../.venv/bin/python` on macOS/Linux. Browser tests use installed Chrome by default; set `PLAYWRIGHT_CHANNEL=chromium` after `npx playwright install chromium` to use Playwright's browser. Test courses are cleaned up without changing seeded data.
 
-Verified during implementation: **21 pytest tests pass**, production TypeScript/Vite build passes, and **3 Playwright browser tests pass**. Browser checks cover seeded data, score validation, every entity’s create/edit/delete flow, exact-threshold attainment, persistence after reload, clearing scores, threshold updates, CSV download, mobile overflow, and a rendered Swagger UI. Two upstream Starlette deprecation warnings are present in pytest; there are no failing tests.
+See [the assessment checklist](docs/assessment-checklist.md) for the latest verified results and exact coverage. Python dependency versions are captured in `requirements.lock.txt`, and npm versions in `package-lock.json`. The official `esbuild-wasm` npm alias keeps the Vite compiler working in the development Windows sandbox.
 
-Python versions are captured in `requirements.lock.txt`; `requirements.txt` records the supported direct dependency ranges. `package-lock.json` pins the frontend dependency graph. The frontend uses the official `esbuild-wasm` package through an npm alias because the native esbuild binary could not enumerate parent directories in the development Windows sandbox; Vite, React, and Tailwind remain unchanged.
+## Deliberate limits
 
-## Scope and next steps
+JWT login and server-side faculty ownership are **not implemented**; they are optional in the brief. The core works without credentials. This is a local assessment app, not a public multi-user service. Also deferred: migrations, concurrent-edit conflict detection, pagination, CSV import, and an institution-wide student registry.
 
-The core assignment is complete locally. **GitHub publication is pending: the available browser requires sign-in and no destination repository was supplied.** The RX reference remains a visible placeholder. Source code contains no comments, as requested. The app ran successfully in local development servers; this environment blocked the VS Code renderer from launching, so the included VS Code task configuration could not be exercised inside the editor.
-
-After creating an empty GitHub repository, publish the local commit history from the repository root:
-
-```bash
-git remote add origin YOUR_GITHUB_REPOSITORY_URL
-git push -u origin main
-```
-
-Intentionally deferred: authentication/JWT and faculty ownership, Docker Compose, schema migrations, pagination, CSV import, audit history, concurrent-edit detection, and institution-wide student records. This is a local assignment app with no authentication; it is not configured for a public multi-user deployment. With more time I would add faculty ownership enforced server-side, Alembic migrations, then optimistic concurrency and broader accessibility testing.
-
-For an interview walkthrough: start with the pure calculation and its boundary test, explain missing versus zero scores, follow one batch save from React to its database transaction, and finish with the deliberate per-course enrollment model and deferred authentication.
+With more time, I would add faculty ownership with isolation tests, Alembic migrations, then optimistic concurrency and a wider accessibility audit. Source code contains no comments, as requested. The implementation uses AI assistance; its calculation, transaction boundaries, enrollment model, and tradeoffs are documented for a technical walkthrough.
