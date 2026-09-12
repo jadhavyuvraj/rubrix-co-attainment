@@ -162,7 +162,7 @@ test('faculty can create, edit, score, calculate, and delete a complete course',
 })
 
 test('Swagger UI renders the documented API', async ({ page }) => {
-  await page.goto('http://127.0.0.1:8000/docs')
+  await page.goto(process.env.PLAYWRIGHT_BASE_URL ? '/docs' : 'http://127.0.0.1:8000/docs')
   await expect(page.getByRole('heading', { name: /Rubrix OBE API/ })).toBeVisible()
   await expect(page.locator('.opblock-summary').first()).toBeVisible()
 })

@@ -6,6 +6,8 @@
 
 **Repository:** [jadhavyuvraj/rubrix-co-attainment](https://github.com/jadhavyuvraj/rubrix-co-attainment)
 
+**Live demo:** [rubrix-co-attainment.vercel.app](https://rubrix-co-attainment.vercel.app) · [API docs](https://rubrix-co-attainment.vercel.app/docs)
+
 A complete local faculty workspace built with **Python, FastAPI, SQLAlchemy, SQLite, Pydantic, React, TypeScript, Vite, and Tailwind CSS**. Define outcomes, record student scores, and calculate attainment with an inclusive threshold.
 
 ![Rubrix OBE dashboard](docs/dashboard.png)
@@ -125,6 +127,8 @@ npm run test:e2e
 ```
 
 Use `../.venv/bin/python` on macOS/Linux. Browser tests use installed Chrome by default; set `PLAYWRIGHT_CHANNEL=chromium` after `npx playwright install chromium` to use Playwright's browser. Test courses are cleaned up without changing seeded data.
+
+To run the same browser suite against a hosted instance, set `PLAYWRIGHT_BASE_URL` to its URL before `npm run test:e2e`. This skips local servers and checks the deployed frontend and API together.
 
 See [the assessment checklist](docs/assessment-checklist.md) for the latest verified results and exact coverage. Python dependency versions are captured in `requirements.lock.txt`, and npm versions in `package-lock.json`. The official `esbuild-wasm` npm alias keeps the Vite compiler working in the development Windows sandbox.
 

@@ -1,6 +1,6 @@
 # Assessment checklist — RX-AF6E46
 
-Reviewed against the Rubrix.ai Software Engineering Intern (Backend / Full Stack) Round 1 assessment on 12 September 2026.
+Reviewed against the Rubrix.ai Software Engineering Intern (Backend / Full Stack) Round 1 assessment on 13 September 2026.
 
 | Requirement | Status | Evidence |
 | --- | --- | --- |
@@ -22,7 +22,7 @@ Reviewed against the Rubrix.ai Software Engineering Intern (Backend / Full Stack
 | GitHub repository | Created | [jadhavyuvraj/rubrix-co-attainment](https://github.com/jadhavyuvraj/rubrix-co-attainment) |
 | JWT and faculty ownership | Deferred | Optional; explicitly documented in README |
 | Docker Compose | Included; container untested | Multi-stage Dockerfile, Compose service, persistent volume, localhost binding and non-root user |
-| Vercel hosting | Configured; database acceptance pending | Root Vercel configuration, FastAPI entrypoint, React build, PostgreSQL driver and concurrent startup protection |
+| Vercel hosting | Deployed | [Live demo](https://rubrix-co-attainment.vercel.app) with FastAPI, React, and a persistent Neon PostgreSQL database on its free plan |
 
 ## Local verification
 
@@ -31,5 +31,9 @@ Reviewed against the Rubrix.ai Software Engineering Intern (Backend / Full Stack
 - **Production build passed** with TypeScript checking and Vite asset generation.
 - **Compose and workflow YAML parsed successfully.** Docker is unavailable locally, so no container-build result is claimed. GitHub Actions runs the Python matrix, frontend build, and browser tests on pushes; remote results are available in the repository's Actions tab.
 - Two upstream Starlette deprecation warnings appear during pytest; they do not fail the tests.
+
+## Hosted verification
+
+All **4 Playwright tests also passed against the public Vercel URL** on 13 September 2026, including full CRUD, saved-score persistence after reload, the inclusive threshold boundary, result export, mobile layout, and Swagger rendering. The homepage, health endpoint, seeded course API, and `/docs` returned HTTP 200 without deployment bypass credentials. Test-created courses were removed after the checks.
 
 The demo supports local assessment and shared Vercel hosting. Faculty authentication, deployment hardening, migrations and simultaneous-edit conflict handling remain future work. No submission recipient or portal was specified in the assessment text supplied here.
