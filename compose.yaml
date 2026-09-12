@@ -1,0 +1,13 @@
+services:
+  rubrix:
+    build: .
+    ports:
+      - "127.0.0.1:8080:8000"
+    volumes:
+      - rubrix-data:/app/backend/data
+    environment:
+      AUTO_SEED: "true"
+    restart: unless-stopped
+
+volumes:
+  rubrix-data:

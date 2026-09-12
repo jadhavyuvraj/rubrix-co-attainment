@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Annotated
 
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints, field_validator
@@ -17,7 +17,7 @@ class CourseInput(Schema):
     name: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=120)]
     department: Name = "Computer Science & Engineering"
     semester: int = Field(default=5, ge=1, le=12)
-    academic_year: str = Field(default="2026–27", min_length=4, max_length=20)
+    academic_year: Annotated[str, StringConstraints(strip_whitespace=True, min_length=4, max_length=20)] = "2026–27"
 
 
 class CourseRead(CourseInput):
@@ -60,6 +60,11 @@ class ScoreRead(ScoreInput):
     id: int
     updated_at: datetime
 
+    @field_validator("updated_at")
+    @classmethod
+    def utc_timestamp(cls, value: datetime) -> datetime:
+        return value.replace(tzinfo=timezone.utc) if value.tzinfo is None else value
+
 
 class ScoreCell(Schema):
     student_id: int = Field(gt=0)
@@ -95,4 +100,3 @@ class AttainmentRead(Schema):
 
 class HealthRead(Schema):
     status: str
-

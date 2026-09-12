@@ -1,8 +1,10 @@
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy import inspect
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
@@ -14,7 +16,11 @@ from .schemas import HealthRead
 from .seed import seed_database
 
 
-def create_app(database_url: str | None = None, seed_demo: bool | None = None) -> FastAPI:
+def create_app(
+    database_url: str | None = None,
+    seed_demo: bool | None = None,
+    frontend_dir: Path | None = None,
+) -> FastAPI:
     @asynccontextmanager
     async def lifespan(app: FastAPI):
         (BACKEND_DIR / "data").mkdir(exist_ok=True)
@@ -44,8 +50,10 @@ def create_app(database_url: str | None = None, seed_demo: bool | None = None) -
 
     app.include_router(courses.router)
     app.include_router(scores.router)
+    frontend = frontend_dir or BACKEND_DIR.parent / "frontend" / "dist"
+    if (frontend / "index.html").is_file():
+        app.mount("/", StaticFiles(directory=frontend, html=True), name="frontend")
     return app
 
 
 app = create_app()
-
