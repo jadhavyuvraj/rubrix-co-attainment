@@ -4,6 +4,8 @@
 
 **GitHub username:** `jadhavyuvraj`
 
+**Repository:** [jadhavyuvraj/rubrix-co-attainment](https://github.com/jadhavyuvraj/rubrix-co-attainment)
+
 A complete local faculty workspace built with **Python, FastAPI, SQLAlchemy, SQLite, Pydantic, React, TypeScript, Vite, and Tailwind CSS**. Define outcomes, record student scores, and calculate attainment with an inclusive threshold.
 
 ![Rubrix OBE dashboard](docs/dashboard.png)
