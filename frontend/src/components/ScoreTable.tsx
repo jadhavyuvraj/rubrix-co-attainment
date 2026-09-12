@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { ArrowDownAZ, ArrowUpAZ, Check, Info, Plus, Save, Search } from 'lucide-react'
-import type { CourseDetail, Notice } from '../types'
+import type { CourseDetail, Notice, Score } from '../types'
 import { api } from '../services/api'
 import { EmptyState } from './ui'
 
@@ -25,12 +25,14 @@ export function ScoreTable({
   const [search, setSearch] = useState('')
   const [descending, setDescending] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [savedScores, setSavedScores] = useState(course.scores)
+  useEffect(() => setSavedScores(course.scores), [course.scores])
   const saved = useMemo(
     () =>
       Object.fromEntries(
-        course.scores.map((score) => [`${score.student_id}:${score.co_id}`, String(score.value)]),
+        savedScores.map((score) => [`${score.student_id}:${score.co_id}`, String(score.value)]),
       ),
-    [course.scores],
+    [savedScores],
   )
   const students = course.students
     .filter((student) =>
@@ -42,6 +44,9 @@ export function ScoreTable({
     value.trim() === '' ||
     (/^(\d+(\.\d*)?|\.\d+)$/.test(value) && Number(value) >= 0 && Number(value) <= 100)
   const invalid = Object.values(drafts).some((value) => !isValid(value))
+  const latestSaved = savedScores.length
+    ? new Date(Math.max(...savedScores.map((score) => new Date(score.updated_at).getTime())))
+    : null
   useEffect(() => onDirty(dirtyCount > 0), [dirtyCount, onDirty])
 
   function change(key: string, value: string) {
@@ -58,7 +63,7 @@ export function ScoreTable({
     setSaving(true)
     onBusy(true)
     try {
-      await api.save(
+      const scores = await api.save<Score[]>(
         `/courses/${course.id}/scores`,
         {
           scores: Object.entries(drafts).map(([key, value]) => {
@@ -68,13 +73,22 @@ export function ScoreTable({
         },
         'PUT',
       )
+      setSavedScores(scores)
       setDrafts({})
       onDirty(false)
       notify({
         type: 'success',
         message: `${dirtyCount} score${dirtyCount === 1 ? '' : 's'} saved. Attainment updated.`,
       })
-      await onSaved()
+      try {
+        await onSaved()
+      } catch {
+        notify({
+          type: 'error',
+          message:
+            'Your scores were saved, but results could not refresh. Reload to see updated attainment.',
+        })
+      }
     } catch (err) {
       notify({
         type: 'error',
@@ -234,6 +248,11 @@ export function ScoreTable({
             </>
           )}
         </span>
+        {latestSaved && !dirtyCount && (
+          <span className="last-saved" title={latestSaved.toLocaleString()}>
+            Last saved {latestSaved.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+          </span>
+        )}
         {dirtyCount > 0 && (
           <button className="text-button" disabled={saving} onClick={() => setDrafts({})}>
             Reset changes

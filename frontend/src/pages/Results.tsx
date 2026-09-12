@@ -61,7 +61,7 @@ export function Results({
       <div className="section-heading">
         <div>
           <h2>Outcome breakdown</h2>
-          <p>Calculated from saved scores at a {threshold}% score threshold.</p>
+          <p>Calculated from saved scores. Score threshold: {threshold}%.</p>
         </div>
         <button className="button secondary" onClick={exportCSV}>
           <Download size={15} />

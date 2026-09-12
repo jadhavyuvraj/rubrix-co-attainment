@@ -42,6 +42,8 @@ export function useWorkspace() {
     }
     setLoading(true)
     setError('')
+    setDetail(null)
+    setResults([])
     Promise.all([api.course(selectedId), api.attainment(selectedId, threshold)])
       .then(([course, values]) => {
         if (current !== sequence.current) return

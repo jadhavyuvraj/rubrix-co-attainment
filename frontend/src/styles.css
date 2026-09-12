@@ -1004,6 +1004,10 @@ h1 > span {
   font-weight: 500;
   vertical-align: middle;
 }
+.last-saved {
+  color: #627257;
+  font-size: 11px;
+}
 .section-heading {
   display: flex;
   justify-content: space-between;

@@ -19,9 +19,7 @@ test('seeded dashboard, results export, and mobile layout', async ({ page }) => 
   expect((await download).suggestedFilename()).toBe('CS301-attainment-50.csv')
   await page.getByLabel('Score threshold').fill('80')
   await page.getByRole('button', { name: 'Apply', exact: true }).click()
-  await expect(
-    page.getByText('Calculated from saved scores at a 80% score threshold.'),
-  ).toBeVisible()
+  await expect(page.getByText('Calculated from saved scores. Score threshold: 80%.')).toBeVisible()
   await expect(page.locator('.result-card').first().locator('.result-number')).toHaveText('37.5%')
   await page.setViewportSize({ width: 390, height: 844 })
   await page.getByLabel('Open navigation').click()

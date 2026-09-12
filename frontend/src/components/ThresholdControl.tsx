@@ -31,6 +31,7 @@ export function ThresholdControl({
         <input
           id="score-threshold"
           aria-invalid={!valid}
+          aria-describedby={!valid ? 'threshold-error' : undefined}
           type="number"
           min="0"
           max="100"
@@ -43,7 +44,11 @@ export function ThresholdControl({
       <button className="text-button" type="submit" disabled={!valid || Number(draft) === value}>
         Apply
       </button>
-      {!valid && <span className="field-error">Enter 0–100.</span>}
+      {!valid && (
+        <span className="field-error" id="threshold-error">
+          Enter 0–100.
+        </span>
+      )}
     </form>
   )
 }
