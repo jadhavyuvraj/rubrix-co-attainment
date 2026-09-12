@@ -56,13 +56,11 @@ def seed_database(db: Session) -> bool:
 
 
 if __name__ == "__main__":
-    from .config import BACKEND_DIR, settings
+    from .config import settings
     from .database import Base, make_engine
 
-    (BACKEND_DIR / "data").mkdir(exist_ok=True)
     engine = make_engine(settings.database_url)
     Base.metadata.create_all(engine)
     with Session(engine) as session:
         print("Demo courses created." if seed_database(session) else "Courses already exist; seed skipped.")
     engine.dispose()
-

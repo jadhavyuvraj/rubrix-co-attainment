@@ -60,6 +60,16 @@ Open [http://127.0.0.1:8080](http://127.0.0.1:8080); API docs are at `/docs` on 
 
 The container runs as a non-root user and binds only to localhost. Docker is not installed in the development environment, so the container build itself has not been run here. The equivalent production frontend and API serving path is covered by a test.
 
+### Vercel
+
+The root `vercel.json` and `pyproject.toml` deploy the React frontend and FastAPI API together. Vercel builds `frontend/`, serves its assets through the CDN, and runs Python 3.12 for `/api/*` and `/docs`.
+
+Connect a Neon PostgreSQL database using Vercel's Storage integration and provide its `DATABASE_URL` to the production environment before deploying. Use the repository root as the Vercel project root and run `vercel --prod`, or import the GitHub repository. The database driver accepts `postgres://`, `postgresql://`, and `postgresql+psycopg://` URLs. Database credentials stay in environment variables and are excluded from Git and deployment uploads.
+
+SQLite remains the default for local development. Hosted PostgreSQL stores changes across deployments. First startup creates and seeds a fresh database; a PostgreSQL transaction lock prevents concurrent startup instances from seeding twice. Subsequent startups preserve edits and deletions.
+
+The hosted assessment is a shared demo with fictional seed data. It has no login or faculty ownership; all visitors can edit the same demo workspace. See [Vercel's FastAPI deployment documentation](https://vercel.com/docs/frameworks/backend/fastapi) for hosting details.
+
 ## Features
 
 - Course, CO, Student, and Score CRUD with typed API contracts and database constraints.
@@ -120,6 +130,6 @@ See [the assessment checklist](docs/assessment-checklist.md) for the latest veri
 
 ## Deliberate limits
 
-JWT login and server-side faculty ownership are **not implemented**; they are optional in the brief. The core works without credentials. This is a local assessment app, not a public multi-user service. Also deferred: migrations, concurrent-edit conflict detection, pagination, CSV import, and an institution-wide student registry.
+JWT login and server-side faculty ownership are **not implemented**; they are optional in the brief. The core works without credentials. The hosted version is a shared assessment demo, not an institution's private workspace. Also deferred: migrations, concurrent-edit conflict detection, pagination, CSV import, and an institution-wide student registry.
 
 With more time, I would add faculty ownership with isolation tests, Alembic migrations, then optimistic concurrency and a wider accessibility audit. Source code contains no comments, as requested. The implementation uses AI assistance; its calculation, transaction boundaries, enrollment model, and tradeoffs are documented for a technical walkthrough.
